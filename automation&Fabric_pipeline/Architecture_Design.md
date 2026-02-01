@@ -11,7 +11,7 @@
     * **Reasoning:** Power BI is highly optimized for Star Schemas. A wide flat table would lead to massive data duplication (repeating User/Department details for every issue) and slower query performance on large datasets.
 * **Schema Drift Strategy (EAV Pattern):**
     * **Decision:** I modeled `CustomAttributeData` using an Entity-Attribute-Value (EAV) pattern (`fct_Issue_Attributes`) instead of dynamic columns.
-    * **Reasoning:** The prompt hinted at "new keys appearing" dynamically. If we altered the table schema (DDL) for every new key, the pipeline would be brittle and prone to locking. EAV allows infinite new attributes without breaking the pipeline.
+    * **Reasoning:** If we altered the table schema (DDL) for every new key, the pipeline would be brittle and prone to locking. EAV allows infinite new attributes without breaking the pipeline.
 
 ### B. Key Assumptions
 1.  **Timezone Consistency:** The source data had mixed formats (ISO strings and Epoch MS). I have assumed all timestamps represent **UTC** to ensure accurate duration calculations (e.g., `IssueAgeDays`).
