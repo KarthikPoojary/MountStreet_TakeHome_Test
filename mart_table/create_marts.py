@@ -13,6 +13,8 @@ json_path = os.path.join(current_dir, "../data/anonymised_issue_data_no_comments
 raw_df = spark.read.option("multiline", "true").json(json_path)
 df_root = raw_df.select(explode(col("issues")).alias("issue"))
 
+print(f"Total Source Records: {df_root.count()}")
+
 # --- CORRECTION HERE ---
 # We map 'RaisedAtTimestamp' to 'CreatedAt' so downstream SQL works
 df_issues = df_root.select(
@@ -94,36 +96,32 @@ dim_person.createOrReplaceTempView("dim_Person")
 # 3.2 FCT_ISSUES
 print("\nCreating Mart: fct_Issues...")
 
-# ROBUST DATE PARSING LOGIC:
-# The 'CreatedAt' (RaisedAtTimestamp) column contains mixed formats:
-# 1. ISO strings ("2024-06-02T...")
-# 2. Epoch strings ("1717580119124")
-# We use a CASE WHEN or COALESCE strategy to handle both.
-
 fct_issues_sql = """
 WITH Normalized_Issues AS (
     SELECT 
         IssueId,
-        Title,
+        -- CLEANING FIX: Replace fancy dashes
+        regexp_replace(Title, '[—–]', '-') as Title,
         Type,
         IsExternalIssue,
+        ImpactsCustomer,
+        Details,
         ModifiedBy_UserId,
+        CreatedAt,
+        DateOccurred,
+        DateIdentified,
         
-        -- Normalization Logic for CreatedAt (RaisedAtTimestamp)
+        -- ROBUST DATE PARSING LOGIC:
         CASE 
-            -- If it looks like a big number (Epoch MS), cast to Long then Timestamp
             WHEN CreatedAt RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(CreatedAt AS LONG))
-            -- Otherwise, let Spark try standard parsing
             ELSE to_timestamp(CreatedAt) 
         END as Norm_CreatedAt,
         
-        -- Normalization Logic for DateOccurred
         CASE 
             WHEN DateOccurred RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(DateOccurred AS LONG))
             ELSE to_timestamp(DateOccurred) 
         END as Norm_DateOccurred,
-        
-        -- Normalization Logic for DateIdentified
+
         CASE 
             WHEN DateIdentified RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(DateIdentified AS LONG))
             ELSE to_timestamp(DateIdentified) 
@@ -132,23 +130,26 @@ WITH Normalized_Issues AS (
     FROM src_Issues
 )
 SELECT 
-    row_number() OVER (ORDER BY IssueId) as IssueKey,
-    IssueId as NaturalKey,
+    row_number() OVER (ORDER BY i.IssueId) as IssueKey,
+    i.IssueId as NaturalKey,
     
-    -- Date Keys (Now using the Normalized columns)
-    COALESCE(CAST(date_format(Norm_CreatedAt, 'yyyyMMdd') AS INT), 19000101) as CreatedDateKey,
-    COALESCE(CAST(date_format(Norm_DateOccurred, 'yyyyMMdd') AS INT), 19000101) as OccurredDateKey,
+    -- Date Keys
+    COALESCE(CAST(date_format(i.Norm_CreatedAt, 'yyyyMMdd') AS INT), 19000101) as CreatedDateKey,
+    COALESCE(CAST(date_format(i.Norm_DateOccurred, 'yyyyMMdd') AS INT), 19000101) as OccurredDateKey,
+    COALESCE(CAST(date_format(i.Norm_DateIdentified, 'yyyyMMdd') AS INT), 19000101) as IdentifiedDateKey,
     
     -- Person FK
     p.PersonKey as ModifiedByPersonKey,
     
     -- Metrics
-    Title,
-    Type,
-    IsExternalIssue,
-    datediff(current_date(), Norm_CreatedAt) as IssueAgeDays
+    i.Title,
+    i.Type,
+    i.IsExternalIssue,
+    i.ImpactsCustomer,
+    datediff(current_date(), i.Norm_CreatedAt) as IssueAgeDays
 
 FROM Normalized_Issues i
+-- FIX: Changed 'p.SourceSystemId' to 'p.SourceUserId' to match dim_Person definition
 LEFT JOIN dim_Person p ON i.ModifiedBy_UserId = p.SourceUserId
 """
 
@@ -160,16 +161,33 @@ fct_issues.createOrReplaceTempView("fct_Issues")
 # 3.3 BRIDGE: ISSUE_PEOPLE
 print("\nCreating Mart: bridge_Issue_People...")
 bridge_people_sql = """
-SELECT 
-    f.IssueKey,
-    p.PersonKey,
-    'Owner' as RoleType
-FROM src_Owners s
-JOIN fct_Issues f ON s.IssueId = f.NaturalKey
-JOIN dim_Person p ON s.UserId = p.SourceUserId
+SELECT * FROM (
+    SELECT 
+        f.IssueKey,
+        p.PersonKey,
+        'Owner' as RoleType
+    FROM src_Owners s
+    JOIN fct_Issues f ON s.IssueId = f.NaturalKey
+    JOIN dim_Person p ON s.UserId = p.SourceUserId
+    
+    UNION ALL
+    
+    SELECT 
+        f.IssueKey,
+        p.PersonKey,
+        'Contributor' as RoleType
+    FROM src_Contributors s
+    JOIN fct_Issues f ON s.IssueId = f.NaturalKey
+    JOIN dim_Person p ON s.UserId = p.SourceUserId
+) 
+ORDER BY IssueKey, RoleType 
 """
 bridge_people = spark.sql(bridge_people_sql)
-bridge_people.show(5)
+bridge_people.show(10) # Show 10 rows to verify
+
+# QUICK DEBUG: Print counts to prove they exist
+print("\n--- DEBUG: Role Counts ---")
+bridge_people.groupBy("RoleType").count().show()
 
 # 3.4 BRIDGE: ISSUE_DEPARTMENTS
 print("\nCreating Mart: bridge_Issue_Departments...")
@@ -185,4 +203,27 @@ bridge_dept = spark.sql(bridge_dept_sql)
 bridge_dept.show(5)
 
 print("\n--- Mart Creation Successful ---")
+
+
+# =================================================================
+# 4. EXPORT DATA FOR POWER BI
+# =================================================================
+print("\nExporting Marts to CSV for Power BI...")
+
+# Define output path
+output_path = os.path.join(current_dir, "../powerBI/marts")
+
+def write_to_csv(df, folder_name):
+    target = f"{output_path}/{folder_name}"
+    df.coalesce(1).write.mode("overwrite").option("header", "true").csv(target)
+    print(f"Saved: {folder_name}")
+
+# Write the tables we created
+write_to_csv(dim_person, "dim_Person")
+write_to_csv(fct_issues, "fct_Issues")
+write_to_csv(bridge_people, "bridge_Issue_People")
+write_to_csv(bridge_dept, "bridge_Issue_Departments")
+
+print(f"\nSUCCESS: Data exported to {output_path}")
+
 spark.stop()

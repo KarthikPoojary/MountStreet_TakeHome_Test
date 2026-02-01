@@ -1,0 +1,292 @@
+IssueKey,DepartmentTypeId,DepartmentName
+1,1a9da980-37e1-4716-936e-62c1931ccfb5,Investor Reporting
+2,32d21bd8-8844-4aa0-9213-d46bc8e4136e,Compliance
+2,9ca1c5e9-b5e6-4652-b55b-5cebdb25d725,Investor Reporting
+2,3be9d7f3-5bea-4b41-b259-36f03a3bb973,External Party
+3,9b7b80f2-5080-4b4c-9259-9236a511770a,IT
+4,08d3fee9-6a28-44ae-8f11-3886f3f82bdb,External Party
+5,9e8987bb-9eb6-4a33-8040-b2a53e4a4f82,Compliance
+5,c1ab8a80-df4a-4d2f-ad5d-806dc581d36d,Finance
+5,518f9e58-ed4f-45ac-bb85-fb29b9116c1f,Surveillance Infrastructure
+6,c350f647-2d66-47f3-9bf2-e54afb058126,Data Onboarding
+7,6a1a35d5-3ba9-4799-b3f9-62cbdd301066,IT
+7,a61c6df7-a164-48de-927a-9b165006687a,Operations
+7,27f6c724-8eda-4a7c-b429-536f2e283f4a,External Party
+8,c16b4728-daeb-4494-8710-78d6a4bd7102,Investor Reporting
+8,f30fbd3f-0211-4184-a407-143eeb739b66,Data Onboarding
+9,e2aefdf0-67b1-4ca6-b627-cef5f2579916,Investor Reporting
+10,53de508e-2408-4ae9-b889-c580d973360e,External Party
+10,7b852ee7-5af9-45fb-bad6-f7a427d16e4a,Surveillance Infrastructure
+10,2880d17d-b8a6-4889-b87f-aa1fcdd12405,Compliance
+11,c6019065-c410-4931-b332-8029337002e9,External Party
+12,0991c4e8-64dd-4945-967e-11001b5b71d9,Finance
+13,23adf305-4d07-4019-8219-7a8c423be393,Investor Reporting
+13,22824803-bd3a-415c-9e21-97c65e9fd7a2,Loan Servicing & Banking
+13,42e17a95-9b8c-435a-89f7-5b1421afa4d9,Data Onboarding
+14,5c662ddf-0e3c-4f07-b2f0-ca4d4ab3d0f1,Investor Reporting
+15,8a0fabca-fb83-4174-81c3-a7ee8ba0b302,Investor Reporting
+16,2072769e-287d-4f95-9feb-7b478c94d12b,Investor Reporting
+16,04b76f1e-bb91-4f76-8281-681999b0128d,Data Onboarding
+16,5e50c178-61ed-4991-af70-e29bcde8ada9,Surveillance CRE
+17,ca188d4b-58c9-4455-9c96-bf9aa8f2721c,Loan Servicing & Banking
+18,afe6f5c2-e9fd-455a-9573-34fca3b659a7,Information Security
+18,23c9e51b-7657-4bff-bfe6-fbe3d956238a,Operations
+19,90a7399a-6d07-4a11-850d-d3bc46879e7d,Operations
+19,1f2a4a7e-f4a2-4dc4-9683-157b6baaa316,IT
+19,cc33373f-6122-435b-9961-b5307a1cc398,External Party
+20,a6f2e4f1-05cc-4bfe-ab7f-616fd005edca,Information Security
+20,9f0ae8b6-a7de-41a2-bf7b-b3f9041e71ee,Operations
+21,1c70a0ad-1cd1-4159-bc84-4fd9c9eab18e,Data Onboarding
+21,fb861c74-c17b-4b5f-a1c7-2bb8e96789b5,Operations
+21,537f4512-7ef2-411d-8527-0e3ead1c04f3,IT
+22,09c12ba5-31be-435d-bc6f-c61affde0645,Finance
+22,c0233516-32ea-4637-af5b-f83abd0c081e,Data Onboarding
+22,0a47cdc7-2cbf-4517-89e4-663d6c35ba78,External Party
+23,a2c148ab-576b-4aac-a059-76667da397db,Investor Reporting
+24,79cce7d2-ebcf-40ce-af2d-8e5284665437,Data Onboarding
+24,948d6946-7dcf-4d67-b313-aff5b7d534c2,External Party
+24,c38eb08f-b701-4d71-b06e-4bda36cf1861,Operations
+25,f7767caa-61af-40cf-b348-3a2d2b61dde5,External Party
+26,dcd105f6-762e-4d51-87e9-467000fbc312,Investor Reporting
+27,95de9f65-d5e4-4f75-966e-4c56934a17b5,Surveillance CRE
+27,4afe48c0-213e-4ed6-8b61-1801b761619d,IT
+28,57da2c9a-c82e-4dd6-abfa-69e773a0a4f9,Surveillance Infrastructure
+28,cc216e40-ba76-4a9d-9c5d-77d6d58d1b31,Surveillance CRE
+29,db7aac2f-5209-4ab3-b309-1327f4a87c91,Finance
+29,ace65936-b99b-404d-825d-6237c109cb4e,IT
+29,508c8624-ad4b-46e1-8c85-d2140dc06165,Surveillance Infrastructure
+30,8f53a692-f586-4d7c-bed5-b2de7d4465c8,Finance
+31,78fa3d63-4006-46d9-b4d9-373865499c66,Data Onboarding
+32,9beb1157-a0f8-4e0c-ad29-8d4a1521d170,Information Security
+32,1475a245-3782-472e-a09b-bd9b7d89503a,Surveillance Infrastructure
+33,7f744577-25bc-4721-a7f2-78f9d697fe98,External Party
+33,ff23df22-dbc1-4e61-b5b1-5a96c91e94ab,IT
+34,2fad7588-c85b-42b1-8d0e-b1ab501fcec1,Data Onboarding
+35,cc871f2b-c9c9-46ba-be52-4497102be8a0,Finance
+36,c34f8ddd-de78-4404-9647-579f71fedf7d,Compliance
+36,043bc931-2abb-415e-b522-0af3674b70a1,IT
+36,4d936e3c-6045-41a1-b1ea-f476be1cbcc4,Information Security
+37,4daa8c10-3f61-47af-bf66-e30cb84f71c2,Finance
+38,61c6846c-b918-4c54-93ca-2b2508a58204,Information Security
+38,95dee4c6-ebd4-4755-9fb0-2bfa423c3508,Operations
+39,e775d558-4fba-4802-a551-75409f19902d,Finance
+39,93b7170b-70f8-46fd-b71e-824a80484786,Data Onboarding
+39,a299022b-4168-40c2-8861-237dbcaf9c2e,Data Onboarding
+40,49998745-c481-4e5f-b796-79bec8114d8a,External Party
+40,3c313719-7295-4639-a12d-bce1e1617a7b,Operations
+41,b83ae346-1fa3-4e0c-9b71-6f1414676f52,Investor Reporting
+42,8561dd73-c5d9-4433-885e-5cb3934cb0ba,IT
+43,30cea0eb-05f5-40ca-868c-2a9c83b37982,Investor Reporting
+43,0a5283fe-6646-4a5b-a5aa-b830e2af964e,External Party
+44,296aa9ce-494a-4471-9d54-8b6c1d86cc9a,IT
+44,50dc0f2d-46ac-4a6b-98ab-4b17be0e5a06,IT
+45,48538734-d81d-4a4c-b215-194a9cb1e688,Finance
+45,9265c61c-3aec-41bd-8866-e14f088cd7a8,Finance
+45,83def16e-e792-4da4-bf9c-1ae1e9c1ba5c,External Party
+46,56df89c5-665a-4a45-ae42-7ff95539516a,Information Security
+46,3a9a1b75-b9dd-493f-90dc-9386e100878c,Loan Servicing & Banking
+47,d3f537ce-671d-4784-bddd-36bf4c979b91,IT
+47,2881a510-a431-4c57-8d35-f28d1526cd5e,External Party
+48,7a84fc06-3c6b-4bc5-a1bf-1f4a05dece2b,IT
+48,c67f6ca1-eaf8-4012-8297-852429ba354f,Operations
+49,4df1999d-7d25-42da-8652-cff8587a1db1,IT
+49,e9333633-36d8-4df8-b7a0-c86a18a430e8,Operations
+50,0193d131-3da2-4c8b-bbdb-401971347108,Loan Servicing & Banking
+51,e9629d40-1ada-4e8f-91df-da1676b150f9,Surveillance CRE
+52,11b76395-81c2-4f77-9328-e6a4b661851f,Compliance
+52,7f1b8631-c111-414d-be76-35028a44f27e,Loan Servicing & Banking
+52,e0a7aa91-0eb5-40c9-a3e6-66f653d9ab41,Data Onboarding
+53,c731617a-193c-45f3-bd45-5f485af4fcc5,Loan Servicing & Banking
+53,cf4ac60b-b8f7-49ee-9465-794f6d2c1232,Data Onboarding
+54,113cf7d6-e031-4334-a698-361f4bf94dc9,External Party
+55,90d55bf7-0eae-43b1-b198-d51e85648c53,Investor Reporting
+55,8e5ece90-51e8-4069-8521-c0ac2d4d1ea7,External Party
+55,52fa5d80-a093-4f74-8549-139c6a3c1aab,Loan Servicing & Banking
+56,1390842c-ee28-4180-af79-4a3af92fe3ee,Information Security
+57,4e5c76e6-7334-4c7f-9f7c-b1e0917e8c81,Information Security
+57,ca8f736f-2281-47b2-9477-a440a8953d60,Surveillance CRE
+58,c81f4645-3ced-409c-b669-1fd50839dad5,IT
+58,db5aa38d-5021-425b-a199-9681698bf9ea,Surveillance Infrastructure
+58,51e17294-6d1b-4ce5-9a34-15217048defb,Loan Servicing & Banking
+59,3860d468-67fa-411b-9c0a-f2d909869432,Data Onboarding
+60,81b893c3-1162-4552-9ba8-bcad5831fc82,Compliance
+60,e3dda502-d654-4a85-a035-76ace11a198f,Finance
+61,8551734d-c9d5-4ea3-9e3c-fe7b19d5b9a8,IT
+61,39c0d80d-8d7b-4e98-afd3-9f176e01df15,Finance
+61,1d8c4f40-216f-4827-9930-87b13d8ef295,Information Security
+62,6f524c9f-4f5d-4b11-830c-f93318ef692c,Information Security
+62,47d4c237-eda7-4a3d-9855-9b9b94e99a4a,Loan Servicing & Banking
+62,ed3baf32-fa72-426c-ac53-97af658670fe,Surveillance Infrastructure
+63,0ae10143-7f08-421e-886e-21611383640a,Surveillance Infrastructure
+63,0855133c-b7fe-41e0-a833-0d2306ecc677,Finance
+63,95449c15-00ef-4d9a-b761-cf178483b846,Surveillance CRE
+64,ab4efc54-e1a3-40b3-8306-821bf086b486,External Party
+65,4ae6c955-19dd-492a-8939-215cb2a8cd56,Data Onboarding
+66,e3914a78-6349-4c8b-b186-7913659890fd,External Party
+67,b381f205-ec29-485e-9f79-fd3b10ddab80,External Party
+67,fe1e467a-98c6-4010-87a4-c749b4431326,Investor Reporting
+68,5de46515-1c9c-4936-98dc-f2ad1599608c,Compliance
+68,e4aa9bf4-d1f1-4d89-bc0a-d96916c702a2,Operations
+69,a20ea90d-38dd-4e1b-b6c8-ffa39eae53a2,Data Onboarding
+69,fd97017e-4d43-469d-a9cc-e789f66c71a3,Compliance
+69,21d82918-a4ad-423e-b9ad-f6d9ac4b3e1b,Data Onboarding
+70,30318d41-311b-4616-bc88-a48dca7a9f4f,IT
+70,8049e822-ea5c-4d36-acef-63be93a0100e,Data Onboarding
+70,da7a01dd-7fda-4ae3-a046-56acc314e574,Compliance
+71,b411923d-c05e-4155-9625-52eeabfbd30f,Information Security
+71,58c6e868-1b39-4647-9a27-339590023754,Surveillance Infrastructure
+71,1f78b665-5873-4ced-b829-db2aa57ee5d1,Operations
+72,f5abaf76-f3b2-4c26-b0bb-2999db776730,
+72,29bda808-bbb3-4190-92bb-82c6dbff8392,Investor Reporting
+72,b62af392-fdc6-4b35-936a-317168f3eec6,Data Onboarding
+72,a14feb4d-7f6a-4609-948d-43d2db241464,Operations
+73,7aa7b11c-5e07-4084-a410-24cdfe2b1519,Compliance
+73,4b094b12-cc59-4530-bb6d-43685996f97a,Finance
+74,09341769-448e-437c-9873-6b9ee9f1532d,Surveillance Infrastructure
+74,644e338c-c7f8-4b28-9292-c4b1bc843d5a,Surveillance Infrastructure
+75,26705376-7e99-4322-b49a-26696f0237f3,Finance
+75,d31dc686-a80f-4663-8d36-66bacbaf6eda,External Party
+75,3f2eb357-53b2-45fe-b192-c4ad5b4af0b6,Investor Reporting
+76,9c7ac06c-43f5-4e99-ad77-35310620b2c0,Compliance
+76,d88a0d10-94da-4d9e-aa1e-ca3b9a6df284,Finance
+76,20191360-6822-433a-9ec1-b10e2d251e10,IT
+77,6bf053dd-202f-45a1-a21c-08bd7425811d,Operations
+78,6222a45e-a2a5-4a3b-9012-6163aa2c8b8e,Information Security
+78,a3a753c8-a94a-4895-8bd4-d7d93d691dae,Operations
+79,d73d414a-6a6a-4e1c-811b-594a2e21503f,IT
+80,d98c9949-624d-4a28-9819-6768c02c5de4,External Party
+80,df80da7a-6d21-4abe-a24f-12eca6017112,Investor Reporting
+81,551219bc-d2c3-46dd-bf15-ea83e2c6730c,Operations
+82,fd405efa-b391-4768-adf9-74acbfdcf304,Finance
+83,f137e837-9735-449e-9936-ce2121f66335,Investor Reporting
+83,c121972d-e38e-4ad6-90c4-9757649568d8,Operations
+84,d64221ad-1dde-4bbb-9029-2c9f26512d49,Information Security
+85,2d50a474-fa85-4387-9d4e-a1258091cc7b,Data Onboarding
+86,67ba65c0-15b0-4b27-b5dd-0f42f4ecc024,IT
+86,27a21235-4161-4da7-8342-b2367a5ff2d0,Operations
+86,5a6eabcf-4db7-4447-a7e0-149923847ba1,Finance
+87,96b8db12-3b00-498a-91bd-f957e8be59d4,External Party
+87,fb4e14bd-efe5-4941-8f58-1c0c9dbd40c8,Investor Reporting
+87,077a20cd-28a1-4e30-8973-b92d8dbe7f1b,Loan Servicing & Banking
+88,a90b9665-ae3d-4223-9e1d-a8188a19b460,Compliance
+89,f069f1f9-4ede-430b-92b4-374abd773234,Surveillance Infrastructure
+90,a9c5b9d7-2b76-45c2-bee8-55ddea09f96c,Finance
+90,cc00dbac-3e4a-4010-bb5d-fd84042bc8bf,Surveillance Infrastructure
+90,3bb54eb4-87db-4c2f-90d7-645ce01e93ae,Loan Servicing & Banking
+91,4680804c-9cfe-4720-bef2-31c267f062b0,Information Security
+92,c2e0b51b-5763-4668-94c5-cba4ed2303fa,Finance
+93,31da1607-725a-4f91-83f3-4394c4e34881,Compliance
+93,99ccbf6a-8280-43f2-9342-8d9b467920fe,Investor Reporting
+94,7eade316-227c-4562-822f-a911bdde13f7,Compliance
+95,781ac574-a1fe-45a0-b2c8-90af408ad0a0,Surveillance CRE
+95,38aee094-8ea9-48c1-bcfb-7b0869e5226c,Information Security
+95,cdd3627c-fd5f-44df-b3f7-095bf97193f2,Surveillance CRE
+96,376d5abe-07e4-4bba-bb10-285d03914a8a,Information Security
+96,5e5f4494-28a1-4cb9-a122-ae040be181a3,Data Onboarding
+96,f1104526-854c-459c-a5e1-fbc95515602a,Compliance
+97,327745bb-1a80-46a4-a2e0-0f4ec8a03a6d,Surveillance CRE
+98,97119fc7-16de-42ff-9dd8-9f9182404672,Information Security
+99,db3bf9d7-eb16-4e8a-9f93-c846984cc3cd,Loan Servicing & Banking
+99,ae2fe027-2ca0-490b-bfd2-4bf6bee8beaa,IT
+99,4050c853-5fab-4c02-b339-35643980da59,IT
+100,a0add669-5d1a-42eb-9b83-6001a761f2fe,Operations
+100,0ef574df-3f30-481d-a3f4-dc4c8d5b2fd1,Compliance
+100,26a6c3a5-a6a7-4866-8a7b-35f1f922ad58,Compliance
+101,ed46c672-51f7-4f08-aefb-f36ecdf713c7,Finance
+101,f890779d-787d-422b-94a8-986e87525777,Compliance
+101,fdb843a6-b23b-4b66-9d3b-7e8ee06afd82,Surveillance Infrastructure
+102,2b99d23e-9f9a-49f9-9fcf-7352afc9f131,Loan Servicing & Banking
+102,e6aff33c-a4b8-4db4-a900-39b36144e49d,IT
+103,f09e19e2-00b0-4229-bb5f-b20ee720accc,Surveillance CRE
+103,38f06a1d-c316-4c3a-bd32-e823fa2300e7,IT
+104,7ea48da0-fe7f-44b8-a5f1-7be06fd81e11,Surveillance CRE
+104,8bdc4715-182c-4cc7-bca3-bf3e24bd2cdf,Investor Reporting
+105,b55506cf-0d24-4d2e-9422-f91d960d6b79,Surveillance Infrastructure
+106,1fb2c319-b240-4063-939a-2d219ed4598d,Investor Reporting
+106,a975e83b-e34a-41de-8173-820bac04947b,External Party
+106,6fb84c51-6511-4e2e-843e-24f90a403096,IT
+107,32172aa9-d936-404f-9ac0-1186f6c6fb7d,Surveillance CRE
+108,6d627468-e0d2-4783-82b7-e7c0aaa958f4,Surveillance Infrastructure
+108,7f3bff88-b7a5-4852-9ad8-09f64653217a,External Party
+109,51846e19-872e-44e1-9c19-2ef8e330acb2,Loan Servicing & Banking
+109,4b6ac8a8-3bf9-4c33-a3b6-b0e446095685,External Party
+110,8222720f-6e36-4964-b68b-1ae50deaf695,IT
+111,861744df-bf6e-4d73-ac2c-75d2cbbe1a90,External Party
+111,e10ec42b-cd8c-49e9-a6aa-ee38e9c72284,IT
+112,e7d49ec6-4e68-477a-87f4-8fe38d52611e,Operations
+113,9bbb4993-4fd8-48b5-8948-4b9cc8f79fe9,Operations
+114,84e86fb8-f7f4-4c99-83a6-5ecb3cd95fb1,Investor Reporting
+114,acbc6c73-3c49-43d4-b84d-a7720b81a7e4,Surveillance CRE
+114,a4df2c37-573d-44c4-84ba-c0a480e1dab1,Surveillance Infrastructure
+115,4c7d80b4-229e-46c2-a313-139679a570f6,Surveillance Infrastructure
+115,d7818fe4-0d90-4b3e-87c4-ed38c796191e,IT
+116,66dc791f-b3fe-4d31-93b8-8ac1be631f32,Compliance
+116,a6b6987f-5021-4948-a321-f0991967426a,Finance
+117,ebcbc279-bbf9-4e61-870d-37dfd6d1ca9c,Surveillance Infrastructure
+117,3cabe186-e75c-49f0-bec8-3df66d443b82,Finance
+117,d203824b-ffe7-4dee-9e5d-8182cdc0a399,IT
+118,d48463be-2fa9-41c6-b716-3cad63c93924,Loan Servicing & Banking
+118,74833f7d-bced-414a-b531-f170617da774,Finance
+118,9880e407-52f1-44c9-918f-6ec4637f5a91,Loan Servicing & Banking
+119,895f36d1-49c9-4ecf-8c24-b7ad5508dbf2,Data Onboarding
+119,b1807eff-7220-42fe-a6a4-7552d7307728,Investor Reporting
+119,ab84dbd5-fd4f-45d9-9f23-c8f35c1a3af9,Surveillance Infrastructure
+120,56e3f23f-d076-47c4-bfa4-5cf064ee3773,External Party
+120,80b303fc-2747-49d5-8218-259a5ee2e6e4,External Party
+120,c5582c6e-1791-4ac5-bbde-205b4f91920e,Investor Reporting
+121,700aa427-7b58-4567-9df2-20316be6b3a1,Surveillance Infrastructure
+122,9bb72d87-c7e4-4ef2-ad1c-81828a532234,IT
+122,a4626c20-709c-4df3-899f-33a72deac5fb,Surveillance CRE
+122,3652b278-6332-4d11-9e71-c0c149d98939,Operations
+123,618c8df0-bb49-42ed-b348-1a4f53430f7f,Loan Servicing & Banking
+124,389f1c7f-2aba-45e1-ba7a-3bd3d928b38a,Loan Servicing & Banking
+124,ca4c3b0a-9f4e-4637-b8f5-36f9ccbca769,IT
+125,c79a86d7-d044-4e96-9a24-174b26d7771f,Loan Servicing & Banking
+125,96023a55-8493-4212-80fa-a8a32e4f0092,Surveillance CRE
+126,cefb6bb7-5796-4540-891f-1e9aef3905f9,Data Onboarding
+126,faa7f90d-0602-494b-83e8-0cabfb7c6fbd,Surveillance Infrastructure
+127,56d2dc69-de44-49bd-bf93-8da5c3396558,Investor Reporting
+127,3fd42f5b-92e5-4cb0-9838-2930edc0e494,Surveillance CRE
+128,6a44748d-df23-4732-8798-0a412035f50a,
+128,5bc17d25-f2d2-47c5-b3ff-2bd759abf549,Data Onboarding
+129,d079d8a2-0f03-460a-a4fe-6a268b3480c4,Loan Servicing & Banking
+130,35f34dd1-1749-4c7d-8b6e-bed410299c06,Information Security
+130,2e6f2ef3-f3b2-4313-84a4-b44525d45cfd,Compliance
+130,d20340fa-58a6-4112-b8dc-342217d9bb0c,Surveillance Infrastructure
+131,55397602-0c61-4bc1-9d62-56875d531c7c,Data Onboarding
+132,45d0c60c-c243-4182-86cc-2613041d5c8f,Operations
+132,76cfc5e8-6342-4e22-ba57-d90af94ba2ea,Information Security
+132,c7197574-5bbe-4f56-85a9-74405ec6fb19,Finance
+133,3ab02836-8968-49a5-a33d-bed6a6c1a337,Finance
+133,e33c4d2e-5514-4412-ad19-f69c7caf439f,Surveillance Infrastructure
+133,94d0ad44-ccd6-4ce1-9d1b-9afe85b9a86a,Operations
+134,cd817e99-e44b-483e-89f0-45d8659eafc5,
+134,f6446671-81dd-4c23-87e2-65f7b11b120e,Data Onboarding
+134,7deb9e2f-d776-430f-b390-73d7b4cd8c8f,External Party
+135,f4ad4380-f869-4a82-895a-8c1b0037d269,Surveillance Infrastructure
+136,78265c20-1207-4a1b-903f-43697b4767d2,Investor Reporting
+136,88b08575-d19e-4d83-b9be-9b587f1c778b,Finance
+137,3b9dee82-26ac-4c5e-aafc-783498e6f176,Surveillance Infrastructure
+137,3d9fdfb4-427c-48d6-a849-7ab88a70a3f8,Surveillance Infrastructure
+137,57e2b776-eb8b-45d2-a4a2-f2e6d278d73f,Surveillance Infrastructure
+138,4b32aa04-8172-4f93-889e-700cbf019457,Investor Reporting
+139,a1bbc7ae-21aa-41c3-83a9-b17b90661c6f,Information Security
+140,b869a449-6b15-4ad9-96d0-da6ace802a03,Investor Reporting
+141,77ad9039-3887-44a3-bcca-93d761bf553f,Loan Servicing & Banking
+142,b04f2c30-e7fe-4588-b482-8f1c946fe0c1,
+142,7d652800-6a14-4ae6-93f9-7454fbd8dc0f,IT
+142,b75eb017-28d7-43bc-a1d3-e430c6c0a822,External Party
+143,d748b412-d3cc-42f4-9487-c157c1639cd2,IT
+144,758c193b-0233-4d92-8cf1-1006a3b55f58,Loan Servicing & Banking
+145,4681da38-960c-4392-965e-78e7cef8a605,Information Security
+145,16abc3da-1044-46f0-85a0-b8f11076b2fb,Information Security
+146,e1cfae39-2972-4510-a7c9-a88f4d87c73c,External Party
+146,5b8128f3-117c-45af-a73e-e6d1a1ddc313,Loan Servicing & Banking
+147,bee007bf-989e-484a-9e12-599f1dcbc9ab,Loan Servicing & Banking
+147,4a76d83a-2913-4a5e-b741-df41b8029556,Data Onboarding
+148,1fc57579-a621-4305-b277-de15767cc86a,Surveillance CRE
+148,e3f62717-89df-4312-892a-5388706eb699,Data Onboarding
+149,93e9bf33-c351-4696-a41b-6b72a5fa0223,Data Onboarding
+150,8c84d677-a900-4f94-8773-7c44a79c60a3,Investor Reporting
+150,598b654c-6452-4ccb-955d-74553d9dc0be,Information Security
+150,9a2d878f-18a6-41b2-9dea-95d00ef0ec36,Loan Servicing & Banking

@@ -65,7 +65,11 @@ CREATE TABLE fct_Issues AS
 WITH Normalized_Issues AS (
     SELECT 
         IssueId,
-        Title,
+        
+        -- DATA CLEANING: Sanitize Title
+        -- Replace Em Dash (—) and En Dash (–) with standard hyphen (-) to fix encoding errors in CSV/Excel
+        regexp_replace(Title, '[—–]', '-') as Title,
+        
         Type,
         IsExternalIssue,
         ImpactsCustomer,
@@ -119,7 +123,7 @@ SELECT
     DATEDIFF(day, Norm_CreatedAt, CURRENT_DATE()) as AgeDays
     
 FROM Normalized_Issues i
-LEFT JOIN dim_Person p ON i.ModifiedBy_UserId = p.SourceSystemId;
+LEFT JOIN dim_Person p ON i.ModifiedBy_UserId = p.SourceUserId;
 
 -- 2.2 FCT_ISSUE_ATTRIBUTES (EAV Table for Custom Data)
 -- Allows analysis of dynamic fields without altering table schema
