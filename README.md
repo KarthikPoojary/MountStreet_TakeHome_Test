@@ -62,19 +62,25 @@ The solution moves beyond simple JSON flattening by implementing **Dimensional M
 
 ### 1. Environment Setup:**
 * Install required libraries
+```bash 
 pip install -r requirements.txt
+```
 
 ### 2. Run Ingestion (Bronze Layer): 
 * This resets the output/source_tables directory and repopulates it with clean Parquet files.
+```bash 
 python unpack_data/unpack_data.py
+```
 
 ### 3. Run Transformation (Gold Layer):
 * This reads the Bronze Parquet files, applies the business logic, and outputs the final Analytical Marts (CSV) to output/marts.
+```bash 
 python mart_table/create_marts.py
+```
 
 ### 4. View Results:
 * Navigate to output/marts/ to inspect the generated CSV files (fct_Issues.csv, dim_Person.csv, etc.).
 
-#### Submitted for the Mount Street Data Engineering Assessment.
 
-```bash
+
+##### Submitted for the Mount Street Data Engineering Assessment.
