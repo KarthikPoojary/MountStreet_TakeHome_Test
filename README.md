@@ -45,9 +45,8 @@ The solution moves beyond simple JSON flattening by implementing **Dimensional M
     * **Business-Centric KPIs:** Anchored MTTR and Age calculations to `IdentifiedDate` (Business Time) rather than `CreatedAt` (System Time) to eliminate negative duration artifacts.
 
 ### Task 3: Power BI (Analytics)
-* The data model supports a "Command Center" dashboard focusing on:
+* The dashboard serves as an Operational Command Center, designed to provide high-level visibility into risk, velocity, and resource capacity.
     * **Velocity:** Average Days to Identify (MTTI) & Resolve (MTTR).
-    * **Risk:** "Stale" and "Orphaned" ticket flags.
     * **Volume:** Backlog trends over time using a standard Date Dimension.
 
 ### Task 4: Automation Architecture
