@@ -6,41 +6,79 @@ This document outlines the production architecture for deploying the Mount Stree
 
 ## 1. Architecture & Approach
 
-### Scenario 1a: Data via API (Pull Pattern)
-* **Objective:** Periodically fetch issue logs from an external REST API.
-* **Fabric Tool:** **Data Factory Pipelines** (Copy Activity).
-* **Workflow:**
-    1.  **Trigger:** Schedule-based (e.g., Hourly or Daily at 01:00 UTC).
-    2.  **Activity:** `Copy Data` activity using the REST Connector.
-    3.  **Pagination:** Implement a loop (Until/ForEach) to handle pagination (cursor or offset-based) to retrieve the full dataset.
-    4.  **Security:** Store API Keys/Tokens in **Azure Key Vault**, accessed via Fabric Managed Identity.
-    5.  **Sink:** Land raw JSON response into OneLake `Raw` zone (Bronze).
+### Design Philosophy
+The pipeline architecture is designed to be **modular, resilient, and secure**. We leverage Microsoft Fabric's unified capacity to handle both batch-based historical loads (API) and real-time event-driven ingestion (Blob), ensuring a "Medallion Architecture" flow (Raw $\rightarrow$ Bronze $\rightarrow$ Silver $\rightarrow$ Gold) regardless of the source origin.
 
-### Scenario 1b: Data in Blob Storage (Push/Event Pattern)
-* **Objective:** Process files immediately as they are uploaded to a Storage Account.
-* **Fabric Tool:** **Event-Driven Pipelines** (Storage Events).
-* **Workflow:**
-    1.  **Trigger:** Azure Event Grid listens for `Microsoft.Storage.BlobCreated`.
-    2.  **Action:** The event triggers a Fabric Pipeline execution, passing the `@triggerBody().fileName` as a parameter.
-    3.  **Processing:** The pipeline calls the `unpack_data` Notebook, passing the specific file path to process only the new data (Incremental Load).
-    4.  **Sink:** Write processed Parquet to OneLake `Bronze` zone.
+---
+
+### Scenario 1a: REST API Integration (The "Pull" Pattern)
+**Use Case:** High-latency, periodic ingestion (e.g., pulling hourly audit logs from a SaaS provider).
+
+* **1. Orchestration Engine:**
+    * We use **Fabric Data Factory Pipelines** as the orchestrator. Unlike a simple script, this provides built-in retries, monitoring, and credential management.
+
+* **2. State Management (Watermarking):**
+    * *Problem:* Fetching the full history every hour is inefficient and costly.
+    * *Solution:* We implement a **Watermark Pattern**. A control table (or file) stores the `Last_Success_Timestamp`.
+    * *Execution:* The pipeline reads this timestamp and passes it to the API request (e.g., `GET /issues?updated_after=2024-01-01T12:00:00`).
+
+* **3. Pagination & Throttling:**
+    * APIs rarely return all data in one call. We use a `Copy Data` activity inside a `Until` or `ForEach` loop to handle pagination (traversing `next_page_token` or offsets) until the full batch is retrieved.
+    * *Resilience:* We respect HTTP 429 (Too Many Requests) headers by configuring the connector's "Retry Interval" to back off automatically.
+
+* **4. Security:**
+    * No hardcoded secrets. API Keys and Bearer Tokens are stored in **Azure Key Vault**. The Fabric Workspace accesses them via **Managed Identity**, ensuring zero-trust security.
+
+* **5. Ingestion Sink:**
+    * Data is landed strictly **"As-Is"** (Raw JSON) into the `Raw` zone of OneLake. We do not attempt to clean the data during extraction to ensure we have an immutable audit trail of the source.
+
+### Scenario 1b: Blob Storage Integration (The "Push" Pattern)
+**Use Case:** Low-latency, reactive processing (e.g., a system dumps a log file, and we need to see it in the dashboard immediately).
+
+* **1. The Trigger (Event Grid):**
+    * Polling storage every minute is wasteful ("Empty Cycles"). Instead, we use an **Event-Driven Architecture**.
+    * We configure an **Azure Event Grid** subscription on the Storage Account. It listens specifically for `Microsoft.Storage.BlobCreated` events.
+
+* **2. Event Routing:**
+    * When a file lands (e.g., `issue_log_2025.json`), Event Grid fires a signal to the Fabric Pipeline, passing the precise `folderPath` and `fileName` in the metadata payload.
+
+* **3. Burst Handling (Concurrency):**
+    * *Risk:* If 1,000 files arrive simultaneously, triggering 1,000 parallel pipelines could exhaust our Spark Capacity.
+    * *Solution:* We configure the Fabric Pipeline **Concurrency Control** (e.g., Max 10 concurrent runs). Additional events are queued and processed as capacity becomes available, preventing a "Thundering Herd" outage.
+
+* **4. Incremental Processing:**
+    * The pipeline passes the filename parameter directly to the `unpack_data` Notebook.
+    * The Notebook processes **only that specific file**, effectively creating a micro-batch stream. This is significantly faster and cheaper than scanning the entire data lake for new files.
 
 ---
 
 ## 2. Schema Drift & Data Quality Strategy
 
 ### A. Handling Mixed Timestamps
-* **Challenge:** Source contains ISO 8601 (`2024-01-01T...`) and Epoch Milliseconds (`1714...`).
-* **Solution (Implemented in PySpark):**
-    * I utilize a **Conditional Parsing Logic** within the Silver transformation.
+* **Challenge:** The source data arrives with inconsistent time formats that would break standard casting:
+    1.  **ISO 8601 with Offset:** `2024-01-01T10:00:00+05:00`
+    2.  **Zulu Time:** `2024-01-01T10:00:00Z`
+    3.  **Date-Only:** `2024-01-01` (Implies midnight)
+    4.  **Epoch Milliseconds:** `1714567890123`
+* **Solution (Universal Normalization):**
+    * I implemented a **Polymorphic Coalesce Strategy** in PySpark to normalize all inputs into a standard `TimestampType (UTC)`.
     * **Logic:**
-        ```python
-        CASE
-            WHEN timestamp_col RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(timestamp_col AS LONG))
-            ELSE to_timestamp(timestamp_col)
+        ```sql
+        CASE 
+            -- 1. Handle Epoch Milliseconds (Numeric string check)
+            WHEN timestamp_col RLIKE '^[0-9]{13}$' 
+                THEN timestamp_millis(CAST(timestamp_col AS LONG))
+            
+            -- 2. Handle Date-Only (Auto-defaults to midnight UTC)
+            WHEN length(timestamp_col) = 10 AND timestamp_col RLIKE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+                THEN to_timestamp(timestamp_col, 'yyyy-MM-dd')
+
+            -- 3. Handle ISO 8601 (Offsets & Zulu)
+            -- Spark's to_timestamp() automatically parses ISO patterns and normalizes to session timezone (UTC)
+            ELSE to_timestamp(timestamp_col) 
         END
         ```
-    * **Standardization:** All timestamps are cast to **UTC** immediately upon ingestion to ensure consistent duration calculations (MTTI/MTTR) downstream.
+    * **Outcome:** Regardless of whether the input is `1714...` or `2024...T...+05:00`, the downstream system receives a unified **UTC Timestamp**, ensuring that KPIs like "Time to Resolve" are calculated accurately without timezone skew.
 
 ### B. Schema Drift (Custom Attributes)
 * **Challenge:** Upstream systems add new keys to `CustomAttributeData` without warning.

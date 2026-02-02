@@ -113,11 +113,13 @@ spark.sql("""
 print("Building: fct_Issues...")
 fct_issues_sql = """
 WITH 
--- 1. Determine "Today" based on the data, not the system clock (Relative Snapshot)
+-- 1. Determine "Today" based on the data (Relative Snapshot)
 Ref_Date AS (
     SELECT MAX(
         CASE 
-            WHEN CreatedAt RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(CreatedAt AS LONG)) 
+            WHEN CreatedAt RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(CreatedAt AS LONG))
+            -- Handle Date-Only (yyyy-MM-dd) explicitly
+            WHEN length(CreatedAt) = 10 THEN to_timestamp(CreatedAt, 'yyyy-MM-dd')
             ELSE to_timestamp(CreatedAt) 
         END
     ) as SnapshotDate
@@ -129,6 +131,7 @@ Raw_Events AS (
         EventName, 
         CASE 
             WHEN EventTimestamp RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(EventTimestamp AS LONG)) 
+            WHEN length(EventTimestamp) = 10 THEN to_timestamp(EventTimestamp, 'yyyy-MM-dd')
             ELSE to_timestamp(EventTimestamp) 
         END as TrueTimestamp
     FROM src_Events
@@ -155,10 +158,24 @@ Normalized_Issues AS (
         i.Details,
         i.ModifiedBy_UserId,
         
-        -- DATES
-        CASE WHEN i.CreatedAt RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(i.CreatedAt AS LONG)) ELSE to_timestamp(i.CreatedAt) END as Norm_CreatedAt,
-        CASE WHEN i.DateOccurred RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(i.DateOccurred AS LONG)) ELSE to_timestamp(i.DateOccurred) END as Norm_DateOccurred,
-        CASE WHEN i.DateIdentified RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(i.DateIdentified AS LONG)) ELSE to_timestamp(i.DateIdentified) END as Norm_DateIdentified,
+        -- DATES: Robust normalization for Mixed Formats
+        CASE 
+            WHEN i.CreatedAt RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(i.CreatedAt AS LONG)) 
+            WHEN length(i.CreatedAt) = 10 THEN to_timestamp(i.CreatedAt, 'yyyy-MM-dd')
+            ELSE to_timestamp(i.CreatedAt) 
+        END as Norm_CreatedAt,
+        
+        CASE 
+            WHEN i.DateOccurred RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(i.DateOccurred AS LONG)) 
+            WHEN length(i.DateOccurred) = 10 THEN to_timestamp(i.DateOccurred, 'yyyy-MM-dd')
+            ELSE to_timestamp(i.DateOccurred) 
+        END as Norm_DateOccurred,
+        
+        CASE 
+            WHEN i.DateIdentified RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(i.DateIdentified AS LONG)) 
+            WHEN length(i.DateIdentified) = 10 THEN to_timestamp(i.DateIdentified, 'yyyy-MM-dd')
+            ELSE to_timestamp(i.DateIdentified) 
+        END as Norm_DateIdentified,
         
         -- STATUS (Priority: Explicit Source > Event Derived)
         COALESCE(i.SourceStatus, 'raised') as CurrentStatus,
@@ -166,11 +183,10 @@ Normalized_Issues AS (
         e.ResolutionTimestamp as Norm_ResolutionDate,
         COALESCE(os.OwnerCount, 0) as OwnerCount,
         
-        -- Bring in the Reference Date for calculation
         r.SnapshotDate
         
     FROM src_Issues i
-    CROSS JOIN Ref_Date r -- Apply the single Max Date to every row
+    CROSS JOIN Ref_Date r
     LEFT JOIN Event_Derived_Info e ON i.IssueId = e.IssueId
     LEFT JOIN Owner_Stats os ON i.IssueId = os.IssueId
 )
@@ -193,21 +209,15 @@ SELECT
     i.ImpactsCustomer,
     i.OwnerCount,
     
-    -- *** KPI CALCULATIONS (Sanitized) ***
-    
-    -- 1. Days To Identify (MTTI) = Identified - Occurred
+    -- KPI CALCULATIONS (Sanitized)
     GREATEST(0, datediff(i.Norm_DateIdentified, i.Norm_DateOccurred)) as DaysToIdentify,
-    
-    -- 2. Days To Resolve (MTTR) = Resolution - Identified (Business Time)
     GREATEST(0, datediff(i.Norm_ResolutionDate, i.Norm_DateIdentified)) as DaysToResolve,
-    
-    -- 3. Issue Age = Snapshot - Identified (How long have we known about this?)
     GREATEST(0, datediff(i.SnapshotDate, i.Norm_DateIdentified)) as IssueAgeDays,
     
     CASE WHEN i.CurrentStatus = 'closed' THEN false ELSE true END as IsOpen,
     CASE WHEN i.OwnerCount = 0 THEN true ELSE false END as IsOrphaned,
     
-    -- DYNAMIC BUCKETS (Using Identified Date for Staleness Logic)
+    -- DYNAMIC BUCKETS
     CASE 
         WHEN i.CurrentStatus = 'closed' THEN 'Closed'
         WHEN datediff(i.SnapshotDate, i.Norm_DateIdentified) <= 7 THEN 'New (<7 Days)'
