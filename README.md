@@ -72,6 +72,6 @@ python mart_table/create_marts.py
 
 **4. View Results:** Navigate to output/marts/ to inspect the generated CSV files (fct_Issues.csv, dim_Person.csv, etc.).
 
-_Submitted for the Mount Street Data Engineering Assessment._
+<u>*Submitted for the Mount Street Data Engineering Assessment.*</u>
 
 ```bash
