@@ -110,35 +110,37 @@ spark.sql("""
 """).createOrReplaceTempView("bridge_Issue_Departments")
 
 # 3.2 FACT ISSUES (The Master Table)
-# This includes the complex "Event Mining" logic for Status and Resolution Time
 print("Building: fct_Issues...")
 fct_issues_sql = """
-WITH Raw_Events AS (
-    -- Get all events
-    SELECT IssueId, EventName, EventTimestamp FROM src_Events
+WITH 
+-- 1. Determine "Today" based on the data, not the system clock (Relative Snapshot)
+Ref_Date AS (
+    SELECT MAX(
+        CASE 
+            WHEN CreatedAt RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(CreatedAt AS LONG)) 
+            ELSE to_timestamp(CreatedAt) 
+        END
+    ) as SnapshotDate
+    FROM src_Issues
 ),
-Event_Metrics AS (
-    -- Calculate Status and Resolution Date per Issue
+Raw_Events AS (
+    SELECT 
+        IssueId, 
+        EventName, 
+        CASE 
+            WHEN EventTimestamp RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(EventTimestamp AS LONG)) 
+            ELSE to_timestamp(EventTimestamp) 
+        END as TrueTimestamp
+    FROM src_Events
+),
+Event_Derived_Info AS (
     SELECT 
         IssueId,
-        -- Logic: The latest event determines current status
-        FIRST(EventName) OVER (PARTITION BY IssueId ORDER BY EventTimestamp DESC) as CurrentStatus,
-        -- Logic: Find the timestamp where event was 'closed'
-        MAX(CASE WHEN EventName = 'closed' THEN EventTimestamp END) as ResolutionTimestamp
+        MAX(CASE WHEN EventName = 'closed' THEN TrueTimestamp END) as ResolutionTimestamp
     FROM Raw_Events
-    GROUP BY IssueId, EventName, EventTimestamp
-),
-Final_Event_Stats AS (
-    -- Flatten to 1 row per issue
-    SELECT 
-        IssueId,
-        FIRST(CurrentStatus) as CurrentStatus,
-        MAX(ResolutionTimestamp) as ResolutionTimestamp
-    FROM Event_Metrics
     GROUP BY IssueId
 ),
 Owner_Stats AS (
-    -- Count owners to find "Orphaned" tickets
     SELECT IssueId, COUNT(*) as OwnerCount 
     FROM src_Owners 
     GROUP BY IssueId
@@ -146,71 +148,70 @@ Owner_Stats AS (
 Normalized_Issues AS (
     SELECT 
         i.IssueId,
-        regexp_replace(i.Title, '[—–]', '-') as Title, -- Fix encoding issues
+        regexp_replace(i.Title, '[—–]', '-') as Title,
         i.Type,
         i.IsExternalIssue,
         i.ImpactsCustomer,
         i.Details,
         i.ModifiedBy_UserId,
         
-        -- DATE PARSING (Handle ISO vs Epoch safely)
+        -- DATES
         CASE WHEN i.CreatedAt RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(i.CreatedAt AS LONG)) ELSE to_timestamp(i.CreatedAt) END as Norm_CreatedAt,
         CASE WHEN i.DateOccurred RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(i.DateOccurred AS LONG)) ELSE to_timestamp(i.DateOccurred) END as Norm_DateOccurred,
         CASE WHEN i.DateIdentified RLIKE '^[0-9]{13}$' THEN timestamp_millis(CAST(i.DateIdentified AS LONG)) ELSE to_timestamp(i.DateIdentified) END as Norm_DateIdentified,
         
-        -- Event Derived Metrics
-        COALESCE(e.CurrentStatus, 'raised') as CurrentStatus,
-        to_timestamp(e.ResolutionTimestamp) as Norm_ResolutionDate,
+        -- STATUS (Priority: Explicit Source > Event Derived)
+        COALESCE(i.SourceStatus, 'raised') as CurrentStatus,
+
+        e.ResolutionTimestamp as Norm_ResolutionDate,
+        COALESCE(os.OwnerCount, 0) as OwnerCount,
         
-        -- Owner Metrics
-        COALESCE(os.OwnerCount, 0) as OwnerCount
+        -- Bring in the Reference Date for calculation
+        r.SnapshotDate
         
     FROM src_Issues i
-    LEFT JOIN Final_Event_Stats e ON i.IssueId = e.IssueId
+    CROSS JOIN Ref_Date r -- Apply the single Max Date to every row
+    LEFT JOIN Event_Derived_Info e ON i.IssueId = e.IssueId
     LEFT JOIN Owner_Stats os ON i.IssueId = os.IssueId
 )
 SELECT 
-    -- KEYS
     row_number() OVER (ORDER BY i.IssueId) as IssueKey,
     i.IssueId as NaturalKey,
     p.PersonKey as ModifiedByPersonKey,
     
-    -- DATES (Actual Date Objects for Power BI Time Intelligence)
     CAST(i.Norm_CreatedAt AS DATE) as CreatedDate,
     CAST(i.Norm_DateOccurred AS DATE) as OccurredDate,
     CAST(i.Norm_DateIdentified AS DATE) as IdentifiedDate,
     CAST(i.Norm_ResolutionDate AS DATE) as ResolutionDate,
     
-    -- SMART KEYS (Integers for Date Dimensions if needed)
     COALESCE(CAST(date_format(i.Norm_CreatedAt, 'yyyyMMdd') AS INT), 19000101) as CreatedDateKey,
 
-    -- CORE METRICS
     i.Title,
     i.Type,
-    i.CurrentStatus,
+    i.CurrentStatus, 
     i.IsExternalIssue,
     i.ImpactsCustomer,
     i.OwnerCount,
     
-    -- CALCULATED PERFORMANCE KPIs
-    -- 1. Days to Identify (MTTI)
-    datediff(i.Norm_DateIdentified, i.Norm_DateOccurred) as DaysToIdentify,
+    -- *** KPI CALCULATIONS (Sanitized) ***
     
-    -- 2. Days to Resolve (MTTR) - Only if resolved
-    datediff(i.Norm_ResolutionDate, i.Norm_CreatedAt) as DaysToResolve,
+    -- 1. Days To Identify (MTTI) = Identified - Occurred
+    GREATEST(0, datediff(i.Norm_DateIdentified, i.Norm_DateOccurred)) as DaysToIdentify,
     
-    -- 3. Issue Age (Backlog Age)
-    datediff(current_date(), i.Norm_CreatedAt) as IssueAgeDays,
+    -- 2. Days To Resolve (MTTR) = Resolution - Identified (Business Time)
+    GREATEST(0, datediff(i.Norm_ResolutionDate, i.Norm_DateIdentified)) as DaysToResolve,
     
-    -- 4. Status Flags
+    -- 3. Issue Age = Snapshot - Identified (How long have we known about this?)
+    GREATEST(0, datediff(i.SnapshotDate, i.Norm_DateIdentified)) as IssueAgeDays,
+    
     CASE WHEN i.CurrentStatus = 'closed' THEN false ELSE true END as IsOpen,
     CASE WHEN i.OwnerCount = 0 THEN true ELSE false END as IsOrphaned,
     
-    -- 5. Business Logic Buckets (Simplifies Filtering)
+    -- DYNAMIC BUCKETS (Using Identified Date for Staleness Logic)
     CASE 
         WHEN i.CurrentStatus = 'closed' THEN 'Closed'
-        WHEN datediff(current_date(), i.Norm_CreatedAt) <= 7 THEN 'New (<7 Days)'
-        WHEN datediff(current_date(), i.Norm_CreatedAt) <= 30 THEN 'Stale (8-30 Days)'
+        WHEN datediff(i.SnapshotDate, i.Norm_DateIdentified) <= 7 THEN 'New (<7 Days)'
+        WHEN datediff(i.SnapshotDate, i.Norm_DateIdentified) <= 30 THEN 'Stale (8-30 Days)'
         ELSE 'Critical (>30 Days)'
     END as AgeBucket
 
@@ -247,4 +248,4 @@ export_mart(spark.table("bridge_Issue_Departments"), "bridge_Issue_Departments")
 export_mart(spark.table("fct_Issue_Attributes"), "fct_Issue_Attributes")
 
 print("\n--- Mart Generation Complete ---")
-spark.stop()
+spark.stop()    

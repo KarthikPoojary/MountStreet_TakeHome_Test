@@ -50,6 +50,7 @@ df_issues = df_root.select(
     col("issue.Details"),
     col("issue.ImpactsCustomer"),
     col("issue.IsExternalIssue"),
+    col("issue.issueStatus.Status").alias("SourceStatus"),
     col("issue.modifiedByUser.Id").alias("ModifiedBy_UserId"),
     col("issue.modifiedByUser.FriendlyName").alias("ModifiedBy_Name"),
     col("issue.modifiedByUser.Email").alias("ModifiedBy_Email")
