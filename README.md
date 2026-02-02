@@ -27,11 +27,11 @@ The solution moves beyond simple JSON flattening by implementing **Dimensional M
 
 ---
 
-## 3. Solution Details by Task
+## 3. Design Rationale & Solution Details
 
 ### Task 1: Unpack Data (The Bronze Layer)
 * **Challenge:** The source was a deeply nested JSON with arrays for `owners`, `contributors`, `departments`, `tags`, and `attachments`.
-* **Solution:** I implemented a PySpark ingestion script that vertically decomposes these arrays into standalone tables (Third Normal Form).
+* **Solution:** I implemented a PySpark ingestion script that vertically decomposes these arrays into standalone tables (3NF).
 * **Schema Drift Strategy:** For the dynamic `CustomAttributeData` field, I avoided hard-coding columns. Instead, I exploded it into a Key-Value pair table (`src_CustomAttributes`). This guarantees the pipeline remains resilient to upstream schema changes.
 
 ### Task 2: Create Mart Tables (The Gold Layer)
@@ -55,6 +55,9 @@ The solution moves beyond simple JSON flattening by implementing **Dimensional M
 * **Ingestion:** Event-Grid triggered pipelines for real-time file processing.
 * **Processing:** Idempotent PySpark notebooks using Delta Lake `MERGE` commands to handle duplicates and updates safely.
 
+### Key Assumptions
+1.  **Timezone Consistency:** I assumed all timestamps represent **UTC**. The pipeline normalizes ISO strings and Epoch MS to UTC to ensure accurate duration calculations.
+2.  **User Uniqueness:** I assumed `UserId` is the stable GUID. The `dim_Person` table consolidates a user's various roles (Owner, Contributor, Modifier) into a single profile for workload analysis.
 ---
 
 ## 4. How to Run
