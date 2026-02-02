@@ -60,18 +60,21 @@ The solution moves beyond simple JSON flattening by implementing **Dimensional M
 
 **Prerequisites:** Python 3.10+, Java 11/17 (for PySpark).
 
-**1. Environment Setup:**
-# Install required libraries
+### 1. Environment Setup:**
+* Install required libraries
 pip install -r requirements.txt
 
-**2. Run Ingestion (Bronze Layer):** This resets the output/source_tables directory and repopulates it with clean Parquet files.
+### 2. Run Ingestion (Bronze Layer): 
+* This resets the output/source_tables directory and repopulates it with clean Parquet files.
 python unpack_data/unpack_data.py
 
-**3. Run Transformation (Gold Layer):** This reads the Bronze Parquet files, applies the business logic, and outputs the final Analytical Marts (CSV) to output/marts.
+### 3. Run Transformation (Gold Layer):
+* This reads the Bronze Parquet files, applies the business logic, and outputs the final Analytical Marts (CSV) to output/marts.
 python mart_table/create_marts.py
 
-**4. View Results:** Navigate to output/marts/ to inspect the generated CSV files (fct_Issues.csv, dim_Person.csv, etc.).
+### 4. View Results:
+* Navigate to output/marts/ to inspect the generated CSV files (fct_Issues.csv, dim_Person.csv, etc.).
 
-<u>*Submitted for the Mount Street Data Engineering Assessment.*</u>
+#### Submitted for the Mount Street Data Engineering Assessment.
 
 ```bash
