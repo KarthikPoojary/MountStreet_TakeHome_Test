@@ -1,37 +1,50 @@
 import os
+import shutil
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, explode, expr
 
+# Initialize Spark
 spark = SparkSession.builder \
     .appName("MountStreet_Unpack") \
     .master("local[*]") \
     .config("spark.driver.bindAddress", "127.0.0.1") \
     .getOrCreate()
 
+# Paths
 current_dir = os.path.dirname(os.path.abspath(__file__))
+# Adjust path if your folder structure is slightly different (e.g. if running from root)
 json_path = os.path.join(current_dir, "../data/anonymised_issue_data_no_comments.json")
+output_base = os.path.join(current_dir, "../output/source_tables")
+
+# Clean previous run
+if os.path.exists(output_base):
+    shutil.rmtree(output_base)
 
 print(f"Reading data from: {json_path}")
+print(f"Writing outputs to: {output_base}")
 
+# Load Raw Data
 raw_df = spark.read.option("multiline", "true").json(json_path)
-
 df_root = raw_df.select(explode(col("issues")).alias("issue"))
 df_root.cache()
 
 print(f"Total Issues Loaded: {df_root.count()}")
 
+# Helper to save tables
+def save_table(df, name):
+    output_path = os.path.join(output_base, name)
+    print(f"\nSaving {name} to {output_path}...")
+    df.write.mode("overwrite").parquet(output_path)
+    df.show(3, truncate=False)
 
 # ==========================================
 # 1. EXTRACT: src_Issues (Fact Grain)
 # ==========================================
-
-print("\nProcessing: src_Issues...")
-
 df_issues = df_root.select(
     col("issue.Id").alias("IssueId"),
     col("issue.Title"),
     col("issue.Type"),
-    col("issue.RaisedAtTimestamp"),
+    col("issue.RaisedAtTimestamp").alias("CreatedAt"),
     col("issue.DateIdentified"),
     col("issue.DateOccurred"),
     col("issue.Details"),
@@ -41,16 +54,19 @@ df_issues = df_root.select(
     col("issue.modifiedByUser.FriendlyName").alias("ModifiedBy_Name"),
     col("issue.modifiedByUser.Email").alias("ModifiedBy_Email")
 )
-
-df_issues.show(3)
+save_table(df_issues, "src_Issues")
 
 # ==========================================
 # 2. TRANSFORM: Flatten Standard Arrays
 # ==========================================
-
 def flatten_array(df, array_col_name, fields_to_extract, table_name):
     print(f"\nProcessing: {table_name}...")
     
+    # Check if column exists before processing to prevent errors
+    if f"issue.{array_col_name}" not in df.columns and array_col_name not in df.select("issue.*").columns:
+         print(f"Skipping {table_name}: Column not found")
+         return None
+
     exploded = df.select(
         col("issue.Id").alias("IssueId"),
         explode(col(f"issue.{array_col_name}")).alias("child")
@@ -64,51 +80,72 @@ def flatten_array(df, array_col_name, fields_to_extract, table_name):
     else:
         result = exploded.select(col("IssueId"), col("child").alias("Value"))
         
-    result.show(3, truncate=False)
+    save_table(result, table_name)
     return result
 
+# Owners
 df_owners = flatten_array(df_root, "owners", 
-    {"user.Id": "UserId", "user.FriendlyName": "Name", "user.Email": "Email"}, "src_Owners")
+    {"user.Id": "UserId", "user.FriendlyName": "Name", "user.Email": "Email"}, 
+    "src_Owners")
 
-df_departments = flatten_array(df_root, "departments", 
-    {"type.DepartmentTypeId": "DepartmentTypeId", "type.Name": "DepartmentName"}, "src_Departments")
-
+# Contributors
 df_contributors = flatten_array(df_root, "contributors", 
-    {"user.Id": "UserId", "user.FriendlyName": "Name", "user.Email": "Email"}, "src_Contributors")
+    {"user.Id": "UserId", "user.FriendlyName": "Name", "user.Email": "Email"}, 
+    "src_Contributors")
 
+# Departments
+df_departments = flatten_array(df_root, "departments", 
+    {"type.DepartmentTypeId": "DepartmentTypeId", "type.Name": "DepartmentName"}, 
+    "src_Departments")
+
+# Tags
 df_tags = flatten_array(df_root, "tags", None, "src_Tags")
 
-df_attachments = flatten_array(df_root, "attachments", 
-    {"file_name": "FileName", "source": "Url"}, "src_Attachments")
 
 # ==========================================
-# 3. TRANSFORM: Complex Array (Events)
+# 3. TRANSFORM: Attachments (FIXED SCHEMA)
 # ==========================================
+print("\nProcessing: src_Attachments...")
+# The schema is flat: {attachment_id, file_name, size_bytes, source}
+df_attachments = df_root.select(
+    col("issue.Id").alias("IssueId"),
+    explode(col("issue.attachments")).alias("child")
+).select(
+    "IssueId",
+    col("child.attachment_id").alias("AttachmentId"),
+    col("child.file_name").alias("FileName"),
+    col("child.size_bytes").alias("FileSize"),
+    col("child.source").alias("Source")
+)
+save_table(df_attachments, "src_Attachments")
 
+
+# ==========================================
+# 4. TRANSFORM: Events (With Carrier Logic)
+# ==========================================
 print("\nProcessing: src_Events...")
-
 df_events = df_root.select(
     col("issue.Id").alias("IssueId"),
-    explode(col("issue.events")).alias("event")
+    explode(col("issue.events")).alias("event_struct")
 ).select(
-    col("IssueId"),
-    col("event.event").alias("EventType"),
-    col("event.timestamp").alias("Timestamp"),
-    col("event.by.Id").alias("Actor_UserId"),
-    col("event.by.FriendlyName").alias("Actor_Name"),
-    col("event.by.Email").alias("Actor_Email")
+    "IssueId",
+    col("event_struct.event").alias("EventName"),
+    col("event_struct.timestamp").alias("EventTimestamp"),
+    col("event_struct.by.Id").alias("TriggeredByUserId"),
+    col("event_struct.by.FriendlyName").alias("TriggeredByName"),
+    # Capture 'carrier' for mitigation events (using getField or direct access is fine)
+    col("event_struct.carrier").alias("Carrier")
 )
+save_table(df_events, "src_Events")
 
-df_events.show(3, truncate=False)
 
+# ==========================================
+# 5. TRANSFORM: Custom Attributes (EAV)
+# ==========================================
 print("\nProcessing: src_CustomAttributes...")
 
-# ==========================================
-# 4. TRANSFORM: Normalize Custom Attributes (EAV)
-# ==========================================
-
+# Dynamically map all fields in CustomAttributeData
 custom_data_schema = df_root.select("issue.CustomAttributeData.*").schema
-
 map_expr_parts = []
 for field in custom_data_schema:
     field_name = field.name
@@ -122,8 +159,7 @@ df_custom_attributes = df_root.select(
     explode(expr(map_expr_string)).alias("AttributeKey", "AttributeValue")
 ).filter(col("AttributeValue").isNotNull()) 
 
-df_custom_attributes.show(5, truncate=False)
+save_table(df_custom_attributes, "src_CustomAttributes")
 
-print("\n--- Unpacking Complete ---")
-
+print("\n--- Unpacking Complete. Bronze Layer created in output/source_tables ---")
 spark.stop()

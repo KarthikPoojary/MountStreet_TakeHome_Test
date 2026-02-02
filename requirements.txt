@@ -1,0 +1,4 @@
+# Core Processing Engine
+pyspark>=3.3.0
+
+# Note: This project requires Java 11 or Java 17 to be installed on the system.
