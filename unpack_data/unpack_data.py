@@ -12,7 +12,6 @@ spark = SparkSession.builder \
 
 # Paths
 current_dir = os.path.dirname(os.path.abspath(__file__))
-# Adjust path if your folder structure is slightly different (e.g. if running from root)
 json_path = os.path.join(current_dir, "../data/anonymised_issue_data_no_comments.json")
 output_base = os.path.join(current_dir, "../output/source_tables")
 
@@ -104,7 +103,7 @@ df_tags = flatten_array(df_root, "tags", None, "src_Tags")
 
 
 # ==========================================
-# 3. TRANSFORM: Attachments (FIXED SCHEMA)
+# 3. TRANSFORM: Attachments
 # ==========================================
 print("\nProcessing: src_Attachments...")
 # The schema is flat: {attachment_id, file_name, size_bytes, source}
@@ -122,7 +121,7 @@ save_table(df_attachments, "src_Attachments")
 
 
 # ==========================================
-# 4. TRANSFORM: Events (With Carrier Logic)
+# 4. TRANSFORM: Events
 # ==========================================
 print("\nProcessing: src_Events...")
 df_events = df_root.select(

@@ -82,7 +82,7 @@ dim_person.createOrReplaceTempView("dim_Person")
 print("Building: bridge_Issue_People...")
 spark.sql("""
     SELECT DISTINCT
-        i.IssueId as IssueKey, -- Using Natural Key for simplicity in this demo
+        i.IssueId as IssueKey, -- Using Natural Key for simplicity
         p.PersonKey,
         'Owner' as RoleType
     FROM src_Owners o
