@@ -21,8 +21,9 @@ The solution moves beyond simple JSON flattening by implementing **Dimensional M
 | **Documentation** | [`docs/Architecture_Design.md`](./docs/Architecture_Design.md) | Production architecture design covering Azure Fabric pipelines, incremental loading strategies, and disaster recovery. |
 | **ER Diagram** | [`docs/ERD.md`](./docs/ERD.md) | Entity Relationship Diagram of the transformed data model. |
 | **Power BI Model** | [`powerBI/`](./powerBI/) | Semantic model design and dashboard instructions. |
-| **Output Data** | `output/marts/` | The final "Gold" datasets (CSVs) ready for Power BI ingestion. |
-| **Source Data** | `data/` | Original anonymised JSON dataset. |
+| **Output - Bronze** | [`output/source_tables/`](./output/source_tables/) | Intermediate structured Parquet files (The result of `unpack_data.py`). |
+| **Output - Gold** | [`output/marts/`](./output/marts/) | Final Analytical Marts in CSV format (The result of `create_marts.py`). |
+| **Source Data** | [`data/`](./data/) | Original anonymised JSON dataset. |
 
 ---
 
