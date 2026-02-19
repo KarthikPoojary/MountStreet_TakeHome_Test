@@ -16,10 +16,11 @@ The solution moves beyond simple JSON flattening by implementing **Dimensional M
 
 | Component | Path | Description |
 | :--- | :--- | :--- |
-| **1. Bronze Layer (Ingestion)** | [`unpack_data/unpack_data.py`](./unpack_data/unpack_data.py) | PySpark script that "explodes" nested JSON arrays (`owners`, `tags`, `events`, `attachments`) into standalone Parquet tables. |
-| **2. Gold Layer (Logic)** | [`mart_table/create_marts.py`](./mart_table/create_marts.py) | **Main Transformation Engine.** Uses Spark SQL to build the Star Schema, handle M:N relationships via bridge tables, and calculate performance metrics. |
+| **Bronze Layer (Ingestion)** | [`unpack_data/unpack_data.py`](./unpack_data/unpack_data.py) | PySpark script that "explodes" nested JSON arrays (`owners`, `tags`, `events`, `attachments`) into standalone Parquet tables. |
+| **Gold Layer (Logic)** | [`mart_table/create_marts.py`](./mart_table/create_marts.py) | **Main Transformation Engine.** Uses Spark SQL to build the Star Schema, handle M:N relationships via bridge tables, and calculate performance metrics. |
 | **Documentation** | [`docs/Architecture_Design.md`](./docs/Architecture_Design.md) | Production architecture design covering Azure Fabric pipelines, incremental loading strategies, and disaster recovery. |
-| **ER Diagram** | [`docs/Star Schema ERD`](./docs/StarSchemaERD.png) | Entity Relationship Diagram of the transformed data model. |
+| **Source ER Diagram** | [`docs/Source ERD`](./docs/SourceERD.png) | Entity Relationship Diagram of the source. |
+| **Transformed data ER Diagram** | [`docs/Source ERD`](./docs/SourceERD.png) | Entity Relationship Diagram of the transformed data model. |
 | **Power BI Model** | [`powerBI/`](./powerBI/) | Semantic model design and dashboard instructions. |
 | **Output - Bronze** | [`output/source_tables/`](./output/source_tables/) | Intermediate structured Parquet files (The result of `unpack_data.py`). |
 | **Output - Gold** | [`output/marts/`](./output/marts/) | Final Analytical Marts in CSV format (The result of `create_marts.py`). |
