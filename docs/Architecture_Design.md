@@ -24,10 +24,10 @@ The pipeline architecture is designed to be **modular, resilient, and secure**. 
 
 * **3. Pagination & Throttling:**
     * APIs rarely return all data in one call. We use a `Copy Data` activity inside a `Until` or `ForEach` loop to handle pagination (traversing `next_page_token` or offsets) until the full batch is retrieved.
-    * *Resilience:* We respect HTTP 429 (Too Many Requests) headers by configuring the connector's "Retry Interval" to back off automatically.
+    * We respect HTTP 429 (Too Many Requests) headers by configuring the connector's "Retry Interval" to back off automatically.
 
 * **4. Security:**
-    * No hardcoded secrets. API Keys and Bearer Tokens are stored in **Azure Key Vault**. The Fabric Workspace accesses them via **Managed Identity**, ensuring zero-trust security.
+    * API Keys and Bearer Tokens are stored in **Azure Key Vault**. The Fabric Workspace accesses them via **Managed Identity**, ensuring zero-trust security.
 
 * **5. Ingestion Sink:**
     * Data is landed strictly **"As-Is"** (Raw JSON) into the `Raw` zone of OneLake. We do not attempt to clean the data during extraction to ensure we have an immutable audit trail of the source.
@@ -61,7 +61,7 @@ The pipeline architecture is designed to be **modular, resilient, and secure**. 
     3.  **Date-Only:** `2024-01-01` (Implies midnight)
     4.  **Epoch Milliseconds:** `1714567890123`
 * **Solution (Universal Normalization):**
-    * I implemented a **Polymorphic Coalesce Strategy** in PySpark to normalize all inputs into a standard `TimestampType (UTC)`.
+    * I will implement a **Polymorphic Coalesce Strategy** in PySpark to normalize all inputs into a standard `TimestampType (UTC)`.
     * **Logic:**
         ```sql
         CASE 
