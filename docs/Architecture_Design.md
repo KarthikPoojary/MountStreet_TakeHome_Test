@@ -1,6 +1,6 @@
 # Automation & Fabric Pipeline Architecture
 
-This document outlines the production architecture for deploying the Mount Street Data Engineering solution within **Microsoft Fabric**. It addresses the specific requirements regarding API vs. Blob ingestion, Data Quality, and Orchestration.
+This document outlines the production architecture for deploying the Mount Street Data Engineering solution within **Microsoft Fabric**.
 
 ---
 
