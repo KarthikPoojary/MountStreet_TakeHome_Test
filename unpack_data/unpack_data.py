@@ -133,7 +133,6 @@ df_events = df_root.select(
     col("event_struct.timestamp").alias("EventTimestamp"),
     col("event_struct.by.Id").alias("TriggeredByUserId"),
     col("event_struct.by.FriendlyName").alias("TriggeredByName"),
-    # Capture 'carrier' for mitigation events (using getField or direct access is fine)
     col("event_struct.carrier").alias("Carrier")
 )
 save_table(df_events, "src_Events")

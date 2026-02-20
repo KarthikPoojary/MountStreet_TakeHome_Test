@@ -16,7 +16,7 @@ The solution moves beyond simple JSON flattening by implementing **Dimensional M
 
 | Component | Path | Description |
 | :--- | :--- | :--- |
-| **Bronze Layer (Ingestion)** | [`unpack_data/unpack_data.py`](./unpack_data/unpack_data.py) | PySpark script that "explodes" nested JSON arrays (`owners`, `tags`, `events`, `attachments`) into standalone Parquet tables. |
+| **Bronze Layer (Ingestion)** | [`unpack_data/unpack_data.py`](./unpack_data/unpack_data.py) | PySpark script that "explodes" nested JSON arrays (`owners`, `tags`, `events`, `attachments`) into standalone Parquet tables. Note: For this assignment, the Raw JSON $\rightarrow$ Bronze $\rightarrow$ Silver steps were combined into unpack_data.py to immediately yield flattened, relational Parquet tables.|
 | **Gold Layer (Logic)** | [`mart_table/create_marts.py`](./mart_table/create_marts.py) | **Main Transformation Engine.** Uses Spark SQL to build the Star Schema, handle M:N relationships via bridge tables, and calculate performance metrics. |
 | **Documentation** | [`docs/Architecture_Design.md`](./docs/Architecture_Design.md) | Production architecture design covering Azure Fabric pipelines, incremental loading strategies, and disaster recovery. |
 | **Source ER Diagram** | [`docs/Source ERD`](./docs/SourceERD.png) | Entity Relationship Diagram of the source. |
